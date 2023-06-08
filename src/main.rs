@@ -94,6 +94,7 @@ impl Game {
                             self.restart();
                         }
                         _ => {
+                            println!("Вы покинули игру.");
                             break;
                         }
                     }
@@ -105,6 +106,7 @@ impl Game {
                             self.restart();
                         }
                         _ => {
+                            println!("Вы покинули игру.");
                             break;
                         }
                     }
