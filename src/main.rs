@@ -94,7 +94,6 @@ impl Game {
                             self.restart();
                         }
                         _ => {
-                            println!("Вы покинули игру.");
                             break;
                         }
                     }
@@ -106,18 +105,17 @@ impl Game {
                             self.restart();
                         }
                         _ => {
-                            println!("Вы покинули игру.");
                             break;
                         }
                     }
                 }
                 UserState::Quite => {
-                    println!("Вы вышли из игры досрочно.");
                     break;
                 }
                 _ => {}
             }
         }
+        println!("Вы покинули игру.");
     }
 
     fn restart(&mut self) {
