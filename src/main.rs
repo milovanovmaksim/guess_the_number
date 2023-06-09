@@ -106,7 +106,7 @@ impl Game {
                 UserAnswer::Yes => {
                     self.restart();
                 }
-                _ => { }
+                _ => { break; }
             }
         }
         println!("Вы покинули игру.");
