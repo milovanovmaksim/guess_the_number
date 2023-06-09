@@ -68,10 +68,11 @@ struct Engine {
 
 impl Engine {
     fn compare(&self) -> Option<Ordering> {
-        match self.user.borrow().guess() {
+        let mut user = self.user.borrow_mut();
+        match user.guess() {
             UserAnswer::Number(guess) => Some(guess.cmp(&self.computer.secret)),
             UserAnswer::Quite => {
-                self.user.borrow_mut().change_state(UserState::Quite);
+                user.change_state(UserState::Quite);
                 None
             }
             _ => None,
