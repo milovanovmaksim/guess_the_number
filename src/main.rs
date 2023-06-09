@@ -126,6 +126,7 @@ impl Game {
             .engine
             .user
             .change_state(UserState::InGame);
+        println!("Отгадайте число от 0 до 100, которое загодал компьютер.");
     }
     fn ask_user_for_restarting_game(&self) -> UserAnswer {
         println!("\nХотите еще партейку? Если да нажмите \"y\", иначе любую клавишу aA - zZ.");
