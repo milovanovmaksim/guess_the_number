@@ -1,6 +1,8 @@
 use rand::Rng;
+use std::cell::RefCell;
 use std::cmp::Ordering;
 use std::io;
+use std::rc::Rc;
 
 enum UserState {
     InGame,
@@ -60,16 +62,16 @@ impl Computer {
 }
 
 struct Engine {
-    user: User,
+    user:  Rc<RefCell<User>>,
     computer: Computer,
 }
 
 impl Engine {
-    fn compare(&mut self) -> Option<Ordering> {
-        match self.user.guess() {
+    fn compare(&self) -> Option<Ordering> {
+        match self.user.borrow().guess() {
             UserAnswer::Number(guess) => Some(guess.cmp(&self.computer.secret)),
             UserAnswer::Quite => {
-                self.user.change_state(UserState::Quite);
+                self.user.borrow_mut().change_state(UserState::Quite);
                 None
             }
             _ => None,
@@ -79,6 +81,7 @@ impl Engine {
 
 struct Game {
     attempt: Attempt,
+    user: Rc<RefCell<User>>,
 }
 
 impl Game {
@@ -86,33 +89,23 @@ impl Game {
         println!("Отгадайте число от 0 до 100, которое загодал компьютер.");
         while self.attempt.attempts > 0 {
             self.attempt.attempt();
-            match self.attempt.verbose_diff.engine.user.state {
+            match self.user.borrow().state {
                 UserState::GameOver => {
                     println!("Вы проиграли. Загаданное число - {}", self.secret());
-                    match self.ask_user_for_restarting_game() {
-                        UserAnswer::Yes => {
-                            self.restart();
-                        }
-                        _ => {
-                            break;
-                        }
-                    }
                 }
                 UserState::Win => {
                     println!("Вы выиграли!");
-                    match self.ask_user_for_restarting_game() {
-                        UserAnswer::Yes => {
-                            self.restart();
-                        }
-                        _ => {
-                            break;
-                        }
-                    }
                 }
                 UserState::Quite => {
                     break;
                 }
-                _ => {}
+                _ => { continue; }
+            }
+            match self.ask_user_for_restarting_game() {
+                UserAnswer::Yes => {
+                    self.restart();
+                }
+                _ => { }
             }
         }
         println!("Вы покинули игру.");
@@ -121,10 +114,7 @@ impl Game {
     fn restart(&mut self) {
         self.attempt.attempts = 6;
         self.attempt.verbose_diff.engine.computer.think_the_secret();
-        self.attempt
-            .verbose_diff
-            .engine
-            .user
+        self.user.borrow_mut()
             .change_state(UserState::InGame);
         println!("Отгадайте число от 0 до 100, которое загодал компьютер.");
     }
@@ -165,24 +155,24 @@ struct VerboseDiff {
 }
 
 impl VerboseDiff {
-    fn print_info(&mut self, attempts: u32) {
+    fn print_info(&self, attempts: u32) {
         match self.engine.compare() {
             Some(Ordering::Greater) => {
                 println!("Слишком большое число");
                 if attempts == 0 {
-                    self.engine.user.change_state(UserState::GameOver);
+                    self.engine.user.borrow_mut().change_state(UserState::GameOver);
                 }
                 println!("Количество оставшихся попыток - {}", attempts);
             }
             Some(Ordering::Less) => {
                 println!("Слишком маленькое число");
                 if attempts == 0 {
-                    self.engine.user.change_state(UserState::GameOver);
+                    self.engine.user.borrow_mut().change_state(UserState::GameOver);
                 }
                 println!("Количество оставшихся попыток - {}", attempts);
             }
             Some(Ordering::Equal) => {
-                self.engine.user.change_state(UserState::Win);
+                self.engine.user.borrow_mut().change_state(UserState::Win);
                 println!("Количество оставшихся попыток - {}", attempts);
             }
             _ => {}
@@ -194,26 +184,28 @@ fn main() {
     let secret = rand::thread_rng().gen_range(0..100);
     // println!("{}", secret);
     let computer = Computer { secret };
-    let user = User {
+    let user = Rc::new(RefCell::new(User {
         state: UserState::InGame,
-    };
-    let engine = Engine { user, computer };
+    }));
+    let engine = Engine { user: user.clone(), computer };
     let mut game = Game {
         attempt: Attempt {
             attempts: 6,
             verbose_diff: VerboseDiff { engine },
-        },
+        }, user: user.clone()
     };
     game.run();
 }
 
+
+// user = User { };
 // Game {
 //     Attempt{
 //         VerboseDiff {
 //             Engine {
-//                 User{},
+//                 user,
 //                 Computer{}
 //             }
 //         }, 6
-//     }
+//     }, user
 // }.run();
