@@ -100,7 +100,7 @@ impl Game {
                 UserState::Quite => {
                     break;
                 }
-                _ => { continue; }
+                UserState::InGame => { continue; }
             }
             match self.ask_user_for_restarting_game() {
                 UserAnswer::Yes => {
