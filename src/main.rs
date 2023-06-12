@@ -23,16 +23,3 @@ fn main() {
         ), 
     ).run();
 }
-
-
-// user = User { };
-// Game {
-//     Attempt{
-//         VerboseDiff {
-//             Engine {
-//                 user,
-//                 Computer{}
-//             }
-//         }, 6
-//     }, user
-// }.run();
