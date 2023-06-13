@@ -18,6 +18,9 @@ pub struct User {}
 
 
 impl User {
+    pub fn new() -> Self {
+        Self {}
+    }
     pub fn guess(&self) -> UserAnswer {
         loop {
             println!("\nПожалуйста, введите свою догадку. Для выхода из игры нажмите \"q\"");

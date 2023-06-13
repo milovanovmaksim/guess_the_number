@@ -17,7 +17,7 @@ fn main() {
         Attempts::new(
             6,
             VerboseDiff::new(
-                User {}, 
+                User::new(), 
                 Computer::new(0..100),
             ),
         ), 
