@@ -33,7 +33,7 @@ impl Game {
             }
             match self.ask_user_for_restarting_game() {
                 UserAnswer::Yes => {
-                    self.run();
+                    return self.run();
                 }
                 _ => { break; }
             }
